@@ -4,6 +4,7 @@
 #include "display_task.h"
 #include "interface_task.h"
 #include "motor_task.h"
+#include "network_task.h"
 
 Configuration config;
 
@@ -17,6 +18,10 @@ static MotorTask motor_task(1, config);
 
 
 InterfaceTask interface_task(0, motor_task, display_task_p);
+
+#if SK_Network
+static NetworkTask NetworkTask(0, motor_task, interface_task);
+#endif
 
 void setup() {
   #if SK_DISPLAY
@@ -36,6 +41,10 @@ void setup() {
 
   motor_task.setLogger(&interface_task);
   motor_task.begin();
+
+  #if SK_Network
+  NetworkTask.begin();
+  #endif
 
   // Free up the Arduino loop task
   vTaskDelete(NULL);
