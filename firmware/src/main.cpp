@@ -5,6 +5,8 @@
 #include "interface_task.h"
 #include "motor_task.h"
 #include "network_task.h"
+#include "FS.h"
+#include "FFat.h"
 
 Configuration config;
 
@@ -20,10 +22,11 @@ static MotorTask motor_task(1, config);
 InterfaceTask interface_task(0, motor_task, display_task_p);
 
 #if SK_Network
-static NetworkTask NetworkTask(0, motor_task, interface_task);
+static NetworkTask NetworkTask(0, motor_task, interface_task, config);
 #endif
 
 void setup() {
+
   #if SK_DISPLAY
   display_task.setLogger(&interface_task);
   display_task.begin();
