@@ -5,13 +5,14 @@
 #include "secrets.h"
 //#include <ArduinoHttpClient.h>
 #include <HTTPClient.h>
+#include "semaphore_guard.h"
 
 
 
 NetworkTask::NetworkTask(const uint8_t task_core, MotorTask& motor_task, Logger& logger, Configuration& configuration) :
     Task("Network", 4096, 1), motor_task_(motor_task), logger_(logger), configuration_(configuration) {
-    knob_state_queue_ = xQueueCreate(1, sizeof(PB_SmartKnobState));
-    assert(knob_state_queue_ != NULL);
+    queue_ = xQueueCreate(5, sizeof(Command));
+    assert(queue_ != NULL);
     }
     //mqtt_client_(wifi_client_) {
     //auto callback = [this](char *topic, byte *payload, unsigned int length) { mqttCallback(topic, payload, length); };
@@ -85,21 +86,39 @@ void NetworkTask::run() {
     //connectMQTT();
     connectHttp();
 
-    //PB_PersistentConfiguration c = configuration_.get();
-    //PB_SmartKnobConfig config = {
-    //    .position = 0,
-    //    .sub_position_unit = 0,
-    //    .position_nonce = 0,
-    //    .min_position = 0,
-    //    .max_position = 1,
-    //    .position_width_radians = 60 * _PI / 180,
-    //    .detent_strength_unit = 0,
-    //};
+    PB_PersistentConfiguration c = configuration_.get();
+    std::string versionStr = std::to_string(c.version);
+    logger_.log(versionStr.c_str());
+
+
+    // PB_SmartKnobConfig config = {
+    //     .position = 0,
+    //     .sub_position_unit = 0,
+    //     .position_nonce = 0,
+    //     .min_position = 0,
+    //     .max_position = 1,
+    //     .position_width_radians = 60 * _PI / 180,
+    //     .detent_strength_unit = 0,
+    // };
 
 
     //Command command;
+    Command command;
+
+    logger_.log("test: 01");
 
     while(1) {
+
+        logger_.log("Test01");
+        if (xQueueReceive(queue_, &command, 0) == pdTRUE)  {
+          logger_.log("knob state recieved");
+        }else {
+          logger_.log("knob state not recieved");
+        };
+        
+        logger_.log("Test02");
+        // }
+
 
         //if (xQueueReceive(queue_, &command, 0) == pdTRUE) {
         //    logger_.log("Command received: ");
@@ -139,3 +158,8 @@ void NetworkTask::run() {
     }
 }
 #endif
+
+
+void NetworkTask::addListener(QueueHandle_t queue) {
+    listeners_.push_back(queue);
+}

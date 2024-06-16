@@ -35,6 +35,7 @@ class NetworkTask : public Task<NetworkTask> {
         Configuration& configuration_;
         QueueHandle_t queue_;
         QueueHandle_t knob_state_queue_; // Add this line
+        std::vector<QueueHandle_t> listeners_;
 
         PB_SmartKnobState state_;
 
