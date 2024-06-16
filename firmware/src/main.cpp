@@ -33,6 +33,7 @@ void setup() {
 
   // Connect display to motor_task's knob state feed
   motor_task.addListener(display_task.getKnobStateQueue());
+  NetworkTask.addListener(display_task.getKnobStateQueue());
   #endif
 
   interface_task.begin();
@@ -46,7 +47,9 @@ void setup() {
   motor_task.begin();
 
   #if SK_Network
+  
   NetworkTask.begin();
+  
   #endif
 
   // Free up the Arduino loop task

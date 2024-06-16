@@ -111,11 +111,11 @@ void NetworkTask::run() {
 
         logger_.log("Test01");
         if (xQueueReceive(queue_, &command, 0) == pdTRUE)  {
-          logger_.log("knob state recieved");
+          logger_.log("knob state recieved!");
         }else {
           logger_.log("knob state not recieved");
         };
-        
+
         logger_.log("Test02");
         // }
 
